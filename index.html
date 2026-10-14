@@ -24,7 +24,6 @@
   .result-card p { margin: 0; color: #ccc; font-size: 14px; }
   .hidden { display: none; }
   .restart { margin-top: 20px; width: 100%; }
-
   .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 20; display: none; }
   .overlay.open { display: block; }
   .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: #1a1a1a; z-index: 21; transform: translateX(-100%); transition: transform 0.3s; padding: 20px; overflow-y: auto; }
@@ -33,7 +32,6 @@
   .car-link { display: block; padding: 14px 12px; background: #2a2a2a; border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
   .car-link:hover { background: #333; }
   .close-menu { background: none; border: none; color: #aaa; font-size: 20px; float: right; cursor: pointer; }
-
   .detail-view { display: none; }
   .detail-view.active { display: block; }
   .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -53,30 +51,25 @@
   <button class="menu-btn" onclick="openMenu()">☰</button>
   <div class="title">Luxury Car Quiz</div>
 </div>
-
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 <div class="sidebar" id="sidebar">
   <button class="close-menu" onclick="closeMenu()">✕</button>
   <h3>All Cars</h3>
   <div id="car-menu"></div>
 </div>
-
 <div class="container">
   <div class="progress"><div class="progress-bar" id="progress"></div></div>
   <h1>Find Your Next Luxury Car</h1>
   <p class="subtitle">Quick quiz for a reliable, modern-feeling luxury car with strong value.</p>
-  
   <div id="quiz">
     <div class="question" id="question">Loading...</div>
     <div class="options" id="options"></div>
   </div>
-  
   <div id="results" class="hidden">
     <h2>Your Top Matches</h2>
     <div id="results-list"></div>
     <button class="primary restart" onclick="restart()">Start Over</button>
   </div>
-
   <div id="detail" class="detail-view">
     <div class="detail-header">
       <button class="back-btn" onclick="closeDetail()">← Back</button>
@@ -84,7 +77,6 @@
     <div id="detail-content" class="car-detail"></div>
   </div>
 </div>
-
 <script>
 const questions = [
   { q: "What's your max budget (out-the-door)?", options: ["Under $35k", "$35k – $45k", "$45k – $55k", "$55k+"] },
@@ -104,28 +96,17 @@ const cars = [
     why: "New M256 inline-6 mild-hybrid. Excellent generation-gap value. Smooth, powerful, and the right engine to buy.",
     tags: ["sedan", "awd", "i6", "value", "comfort", "2021"],
     engine: "3.0L M256 inline-6 turbo + 48V EQ Boost mild hybrid (362 hp / 369 lb-ft)",
-    packages: [
-      "Driver Assistance Package (DISTRONIC, Active Steering, Lane Change)",
-      "AIR BODY CONTROL air suspension",
-      "Premium Package (Burmester, Surround View)",
-      "Warmth & Comfort (heated wheel, rapid heat)",
-      "Night Package + AMG Line styling"
-    ],
-    notes: "W213 generation. 2020 and earlier use the older V6. 2021+ is the M256 inline-6 with mild hybrid — this is the one to buy. Air suspension is the highway comfort upgrade."
+    packages: ["Driver Assistance Package", "AIR BODY CONTROL", "Premium Package (Burmester)", "Warmth & Comfort", "AMG Line"],
+    notes: "Buy 2021+ only for the M256. Air suspension is the highway upgrade. Service history on the air system matters."
   },
   {
     name: "BMW 540i / 540i xDrive (G30)",
     generation: "G30 (2017–2023) — prefer 2021+ facelift",
     why: "B58 inline-6 is one of the most reliable modern BMW engines. Still feels current and premium.",
     tags: ["sedan", "awd", "i6", "reliability", "value", "2018"],
-    engine: "3.0L B58 twin-scroll turbo inline-6 (335–375 hp depending on year)",
-    packages: [
-      "M Sport package (sport seats, wheels, steering)",
-      "Driving Assistance Professional",
-      "Premium Package (HUD, Harman Kardon or Bowers)",
-      "Executive Package (ventilated seats, rear shades)"
-    ],
-    notes: "G30 generation. B58 is one of BMW’s best modern engines. 2021+ facelift adds mild-hybrid and updated tech. xDrive is the AWD version."
+    engine: "3.0L B58 twin-scroll turbo inline-6 (335–375 hp)",
+    packages: ["M Sport", "Driving Assistance Professional", "Premium Package", "Executive Package"],
+    notes: "B58 is excellent. Prefer 2021+ for mild-hybrid and facelift. xDrive for AWD."
   },
   {
     name: "Lexus LS 500",
@@ -133,13 +114,8 @@ const cars = [
     why: "Twin-turbo V6, extremely reliable, big depreciation from original sticker. Quiet flagship feel.",
     tags: ["sedan", "awd", "v6", "reliability", "comfort", "2018"],
     engine: "3.5L twin-turbo V6 (416 hp / 442 lb-ft)",
-    packages: [
-      "Luxury or Executive package",
-      "Air suspension (optional on higher trims)",
-      "Mark Levinson audio",
-      "Panoramic roof + heated/ventilated seats"
-    ],
-    notes: "XF50 generation. Extremely reliable twin-turbo V6. Heavy depreciation from $80k–$100k stickers. Quiet flagship for long highway trips."
+    packages: ["Luxury or Executive", "Air suspension", "Mark Levinson", "Panoramic roof"],
+    notes: "Extremely reliable. Heavy depreciation. Quiet flagship for long trips."
   },
   {
     name: "Genesis G80 3.5T",
@@ -147,13 +123,8 @@ const cars = [
     why: "Strong value, modern interior, good reliability, and twin-turbo V6 power without German maintenance costs.",
     tags: ["sedan", "awd", "v6", "value", "2021"],
     engine: "3.5L twin-turbo V6 (375 hp / 391 lb-ft)",
-    packages: [
-      "Advanced or Prestige package",
-      "Nappa leather + ventilated seats",
-      "Lexicon audio",
-      "Driver assistance suite (highway driving assist)"
-    ],
-    notes: "2nd-generation redesign (2021+). Much more modern than the previous generation. Best pure value. Look for Advanced or Prestige packages."
+    packages: ["Advanced or Prestige", "Nappa leather + ventilated seats", "Lexicon audio"],
+    notes: "2021+ redesign feels modern. Strong warranty. Best pure value."
   },
   {
     name: "Audi A6 / A7 3.0T",
@@ -161,13 +132,98 @@ const cars = [
     why: "Solid 3.0T V6, nice highway manners. Secondary pick if the others don't fit.",
     tags: ["sedan", "coupe", "awd", "v6", "2019"],
     engine: "3.0L EA839 turbo V6 (335–349 hp)",
-    packages: [
-      "Premium Plus or Prestige",
-      "Adaptive air suspension",
-      "Bang & Olufsen audio",
-      "Driver Assistance package"
-    ],
-    notes: "C8 generation. A7 is the sportier Sportback coupe. Prestige is the fully loaded trim. Good highway car, secondary to the others on reliability."
+    packages: ["Premium Plus or Prestige", "Adaptive air suspension", "Bang & Olufsen"],
+    notes: "A7 is the Sportback coupe. Prestige is fully loaded. Good but secondary on reliability."
+  },
+  {
+    name: "Lexus RX 350 / 350h",
+    generation: "AL20 (2016–2022) / AL30 (2023+)",
+    why: "Bulletproof V6 or hybrid. Best-selling luxury SUV with excellent reliability and residual value.",
+    tags: ["suv", "awd", "v6", "reliability", "value", "comfort"],
+    engine: "3.5L V6 or hybrid (295–308 hp)",
+    packages: ["Luxury or F Sport", "Mark Levinson", "Panoramic roof", "Ventilated seats"],
+    notes: "One of the most reliable luxury SUVs. Prefer later years of each gen for tech. Holds value extremely well."
+  },
+  {
+    name: "Lexus GX 460",
+    generation: "J150 (2010–2023)",
+    why: "Body-on-frame V8 SUV. Nearly indestructible. Strong residual and off-road capability with luxury.",
+    tags: ["suv", "awd", "v8", "reliability", "comfort"],
+    engine: "4.6L V8 (301 hp / 329 lb-ft)",
+    packages: ["Luxury", "Premium", "Off-road package"],
+    notes: "Bulletproof 1UR-FE V8 shared with Land Cruiser. Excellent residual. Ideal if he wants a tank."
+  },
+  {
+    name: "Genesis GV70 3.5T",
+    generation: "1st gen (2022–present)",
+    why: "Modern compact luxury SUV with strong V6, good reliability, and strong value from depreciation.",
+    tags: ["suv", "awd", "v6", "value", "2022"],
+    engine: "3.5L twin-turbo V6 (375 hp)",
+    packages: ["Advanced or Sport Prestige", "Nappa seats", "Surround view"],
+    notes: "Avoid first-year 2022 if possible. Excellent warranty. Feels modern and loaded for the money."
+  },
+  {
+    name: "Genesis GV80 3.5T",
+    generation: "1st gen (2021–present)",
+    why: "Midsize luxury SUV with twin-turbo V6. Strong value and modern interior.",
+    tags: ["suv", "awd", "v6", "value", "2021"],
+    engine: "3.5L twin-turbo V6 (375 hp)",
+    packages: ["Advanced or Prestige", "Air suspension available", "Lexicon audio"],
+    notes: "2021+ is the modern redesign. Good residual relative to German rivals. Look for loaded trims."
+  },
+  {
+    name: "BMW X5 xDrive40i (G05)",
+    generation: "G05 (2019–present) — prefer 2021+",
+    why: "B58 inline-6 in a popular luxury SUV. Reliable engine with strong value after depreciation.",
+    tags: ["suv", "awd", "i6", "reliability", "value"],
+    engine: "3.0L B58 turbo inline-6 (335–375 hp)",
+    packages: ["M Sport", "Premium Package", "Driving Assistance Professional"],
+    notes: "B58 is the engine to buy. Prefer post-2019 updated version. Excellent driving SUV."
+  },
+  {
+    name: "BMW 840i / M850i (G15)",
+    generation: "G15 (2019–present)",
+    why: "Modern grand tourer coupe with B58 or V8. Feels newer than older 6 Series.",
+    tags: ["coupe", "awd", "i6", "v8", "value"],
+    engine: "3.0L B58 or 4.4L twin-turbo V8",
+    packages: ["M Sport", "Premium", "Driving Assistance"],
+    notes: "Prefer the 840i with B58 for reliability. M850i V8 is more powerful but higher ownership cost."
+  },
+  {
+    name: "Lexus IS 500 / RC 350",
+    generation: "XE30 IS (2014+) / XC10 RC",
+    why: "Naturally aspirated V8 (IS 500) or V6. Extremely reliable and holds value well.",
+    tags: ["sedan", "coupe", "v8", "v6", "reliability"],
+    engine: "5.0L V8 (472 hp) or 3.5L V6",
+    packages: ["F Sport", "Luxury", "Mark Levinson"],
+    notes: "IS 500 is the bulletproof V8 option. RC is the coupe. Both are low-drama ownership."
+  },
+  {
+    name: "Mercedes GLE 450 4MATIC",
+    generation: "W167 (2020–present) — avoid 2020",
+    why: "M256 inline-6 in a popular midsize SUV. Good highway manners and value.",
+    tags: ["suv", "awd", "i6", "value", "comfort"],
+    engine: "3.0L M256 inline-6 mild-hybrid",
+    packages: ["AMG Line", "Driver Assistance", "Air suspension"],
+    notes: "Skip 2020 model year. Prefer later years. Air suspension is nice but check service history."
+  },
+  {
+    name: "Audi A5 / S5 Sportback",
+    generation: "B9 (2018–present)",
+    why: "Sporty coupe/Sportback with solid 3.0T. Good alternative if he wants something lower and sportier.",
+    tags: ["coupe", "awd", "v6", "value"],
+    engine: "2.0T or 3.0T EA839",
+    packages: ["Premium Plus or Prestige", "Adaptive suspension", "B&O audio"],
+    notes: "S5 is the stronger engine. Prestige is the one to buy. Secondary to Lexus/Genesis on reliability."
+  },
+  {
+    name: "Lexus LX 570 / 600",
+    generation: "URJ200 (2008–2021) / J300 (2022+)",
+    why: "Flagship body-on-frame V8 SUV. Bulletproof and holds value extremely well.",
+    tags: ["suv", "awd", "v8", "reliability", "comfort"],
+    engine: "5.7L V8 or newer twin-turbo V6",
+    packages: ["Luxury", "Executive", "Off-road"],
+    notes: "One of the most residual-strong luxury SUVs. High fuel use but nearly unbreakable."
   }
 ];
 
@@ -264,18 +320,20 @@ function showResults() {
     let score = 0;
     if (answers[1] === 0 && car.tags.includes('sedan')) score += 2;
     if (answers[1] === 1 && car.tags.includes('coupe')) score += 2;
+    if (answers[1] === 2 && car.tags.includes('suv')) score += 2;
     if (answers[2] === 0 && car.tags.includes('awd')) score += 2;
     if (answers[3] === 0 && (car.tags.includes('i6') || car.tags.includes('v6'))) score += 2;
+    if (answers[3] === 1 && car.tags.includes('v8')) score += 2;
     if (answers[4] === 0 && car.tags.includes('value')) score += 3;
     if (answers[4] === 1 && car.tags.includes('reliability')) score += 3;
     if (answers[4] === 2 && car.tags.includes('comfort')) score += 2;
     if (answers[7] === 0 && car.tags.includes('2021')) score += 2;
     return { ...car, score };
-  }).sort((a, b) => b.score - a.score).slice(0, 4);
+  }).sort((a, b) => b.score - a.score).slice(0, 5);
 
   const list = document.getElementById('results-list');
   list.innerHTML = '';
-  scored.forEach((car, idx) => {
+  scored.forEach((car) => {
     const realIndex = cars.findIndex(c => c.name === car.name);
     const div = document.createElement('div');
     div.className = 'result-card';
