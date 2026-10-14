@@ -26,10 +26,10 @@
   .restart { margin-top: 20px; width: 100%; }
   .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 20; display: none; }
   .overlay.open { display: block; }
-  .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: #1a1a1a; z-index: 21; transform: translateX(-100%); transition: transform 0.3s; padding: 20px; overflow-y: auto; }
+  .sidebar { position: fixed; top: 0; left: 0; width: 320px; height: 100%; background: #1a1a1a; z-index: 21; transform: translateX(-100%); transition: transform 0.3s; padding: 20px; overflow-y: auto; }
   .sidebar.open { transform: translateX(0); }
   .sidebar h3 { margin: 0 0 16px; font-size: 18px; }
-  .car-link { display: block; padding: 14px 12px; background: #2a2a2a; border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
+  .car-link { display: block; padding: 14px 12px; background: #2a2a2a; border-radius: 10px; margin-bottom: 10px; cursor: pointer; font-size: 14px; }
   .car-link:hover { background: #333; }
   .close-menu { background: none; border: none; color: #aaa; font-size: 20px; float: right; cursor: pointer; }
   .detail-view { display: none; }
@@ -54,13 +54,13 @@
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 <div class="sidebar" id="sidebar">
   <button class="close-menu" onclick="closeMenu()">✕</button>
-  <h3>All Cars</h3>
+  <h3>All Cars (15 per type)</h3>
   <div id="car-menu"></div>
 </div>
 <div class="container">
   <div class="progress"><div class="progress-bar" id="progress"></div></div>
   <h1>Find Your Next Luxury Car</h1>
-  <p class="subtitle">Quick quiz for a reliable, modern-feeling luxury car with strong value.</p>
+  <p class="subtitle">Quick quiz for a reliable, modern-feeling luxury car with strong value. 15 options each for sedan, coupe, and SUV.</p>
   <div id="quiz">
     <div class="question" id="question">Loading...</div>
     <div class="options" id="options"></div>
@@ -90,141 +90,56 @@ const questions = [
 ];
 
 const cars = [
-  {
-    name: "2021+ Mercedes E450 4MATIC",
-    generation: "W213 (2017–2023) — buy 2021+ only",
-    why: "New M256 inline-6 mild-hybrid. Excellent generation-gap value. Smooth, powerful, and the right engine to buy.",
-    tags: ["sedan", "awd", "i6", "value", "comfort", "2021"],
-    engine: "3.0L M256 inline-6 turbo + 48V EQ Boost mild hybrid (362 hp / 369 lb-ft)",
-    packages: ["Driver Assistance Package", "AIR BODY CONTROL", "Premium Package (Burmester)", "Warmth & Comfort", "AMG Line"],
-    notes: "Buy 2021+ only for the M256. Air suspension is the highway upgrade. Service history on the air system matters."
-  },
-  {
-    name: "BMW 540i / 540i xDrive (G30)",
-    generation: "G30 (2017–2023) — prefer 2021+ facelift",
-    why: "B58 inline-6 is one of the most reliable modern BMW engines. Still feels current and premium.",
-    tags: ["sedan", "awd", "i6", "reliability", "value", "2018"],
-    engine: "3.0L B58 twin-scroll turbo inline-6 (335–375 hp)",
-    packages: ["M Sport", "Driving Assistance Professional", "Premium Package", "Executive Package"],
-    notes: "B58 is excellent. Prefer 2021+ for mild-hybrid and facelift. xDrive for AWD."
-  },
-  {
-    name: "Lexus LS 500",
-    generation: "XF50 (2018–present)",
-    why: "Twin-turbo V6, extremely reliable, big depreciation from original sticker. Quiet flagship feel.",
-    tags: ["sedan", "awd", "v6", "reliability", "comfort", "2018"],
-    engine: "3.5L twin-turbo V6 (416 hp / 442 lb-ft)",
-    packages: ["Luxury or Executive", "Air suspension", "Mark Levinson", "Panoramic roof"],
-    notes: "Extremely reliable. Heavy depreciation. Quiet flagship for long trips."
-  },
-  {
-    name: "Genesis G80 3.5T",
-    generation: "2nd gen (2021–present redesign)",
-    why: "Strong value, modern interior, good reliability, and twin-turbo V6 power without German maintenance costs.",
-    tags: ["sedan", "awd", "v6", "value", "2021"],
-    engine: "3.5L twin-turbo V6 (375 hp / 391 lb-ft)",
-    packages: ["Advanced or Prestige", "Nappa leather + ventilated seats", "Lexicon audio"],
-    notes: "2021+ redesign feels modern. Strong warranty. Best pure value."
-  },
-  {
-    name: "Audi A6 / A7 3.0T",
-    generation: "C8 (2019–present)",
-    why: "Solid 3.0T V6, nice highway manners. Secondary pick if the others don't fit.",
-    tags: ["sedan", "coupe", "awd", "v6", "2019"],
-    engine: "3.0L EA839 turbo V6 (335–349 hp)",
-    packages: ["Premium Plus or Prestige", "Adaptive air suspension", "Bang & Olufsen"],
-    notes: "A7 is the Sportback coupe. Prestige is fully loaded. Good but secondary on reliability."
-  },
-  {
-    name: "Lexus RX 350 / 350h",
-    generation: "AL20 (2016–2022) / AL30 (2023+)",
-    why: "Bulletproof V6 or hybrid. Best-selling luxury SUV with excellent reliability and residual value.",
-    tags: ["suv", "awd", "v6", "reliability", "value", "comfort"],
-    engine: "3.5L V6 or hybrid (295–308 hp)",
-    packages: ["Luxury or F Sport", "Mark Levinson", "Panoramic roof", "Ventilated seats"],
-    notes: "One of the most reliable luxury SUVs. Prefer later years of each gen for tech. Holds value extremely well."
-  },
-  {
-    name: "Lexus GX 460",
-    generation: "J150 (2010–2023)",
-    why: "Body-on-frame V8 SUV. Nearly indestructible. Strong residual and off-road capability with luxury.",
-    tags: ["suv", "awd", "v8", "reliability", "comfort"],
-    engine: "4.6L V8 (301 hp / 329 lb-ft)",
-    packages: ["Luxury", "Premium", "Off-road package"],
-    notes: "Bulletproof 1UR-FE V8 shared with Land Cruiser. Excellent residual. Ideal if he wants a tank."
-  },
-  {
-    name: "Genesis GV70 3.5T",
-    generation: "1st gen (2022–present)",
-    why: "Modern compact luxury SUV with strong V6, good reliability, and strong value from depreciation.",
-    tags: ["suv", "awd", "v6", "value", "2022"],
-    engine: "3.5L twin-turbo V6 (375 hp)",
-    packages: ["Advanced or Sport Prestige", "Nappa seats", "Surround view"],
-    notes: "Avoid first-year 2022 if possible. Excellent warranty. Feels modern and loaded for the money."
-  },
-  {
-    name: "Genesis GV80 3.5T",
-    generation: "1st gen (2021–present)",
-    why: "Midsize luxury SUV with twin-turbo V6. Strong value and modern interior.",
-    tags: ["suv", "awd", "v6", "value", "2021"],
-    engine: "3.5L twin-turbo V6 (375 hp)",
-    packages: ["Advanced or Prestige", "Air suspension available", "Lexicon audio"],
-    notes: "2021+ is the modern redesign. Good residual relative to German rivals. Look for loaded trims."
-  },
-  {
-    name: "BMW X5 xDrive40i (G05)",
-    generation: "G05 (2019–present) — prefer 2021+",
-    why: "B58 inline-6 in a popular luxury SUV. Reliable engine with strong value after depreciation.",
-    tags: ["suv", "awd", "i6", "reliability", "value"],
-    engine: "3.0L B58 turbo inline-6 (335–375 hp)",
-    packages: ["M Sport", "Premium Package", "Driving Assistance Professional"],
-    notes: "B58 is the engine to buy. Prefer post-2019 updated version. Excellent driving SUV."
-  },
-  {
-    name: "BMW 840i / M850i (G15)",
-    generation: "G15 (2019–present)",
-    why: "Modern grand tourer coupe with B58 or V8. Feels newer than older 6 Series.",
-    tags: ["coupe", "awd", "i6", "v8", "value"],
-    engine: "3.0L B58 or 4.4L twin-turbo V8",
-    packages: ["M Sport", "Premium", "Driving Assistance"],
-    notes: "Prefer the 840i with B58 for reliability. M850i V8 is more powerful but higher ownership cost."
-  },
-  {
-    name: "Lexus IS 500 / RC 350",
-    generation: "XE30 IS (2014+) / XC10 RC",
-    why: "Naturally aspirated V8 (IS 500) or V6. Extremely reliable and holds value well.",
-    tags: ["sedan", "coupe", "v8", "v6", "reliability"],
-    engine: "5.0L V8 (472 hp) or 3.5L V6",
-    packages: ["F Sport", "Luxury", "Mark Levinson"],
-    notes: "IS 500 is the bulletproof V8 option. RC is the coupe. Both are low-drama ownership."
-  },
-  {
-    name: "Mercedes GLE 450 4MATIC",
-    generation: "W167 (2020–present) — avoid 2020",
-    why: "M256 inline-6 in a popular midsize SUV. Good highway manners and value.",
-    tags: ["suv", "awd", "i6", "value", "comfort"],
-    engine: "3.0L M256 inline-6 mild-hybrid",
-    packages: ["AMG Line", "Driver Assistance", "Air suspension"],
-    notes: "Skip 2020 model year. Prefer later years. Air suspension is nice but check service history."
-  },
-  {
-    name: "Audi A5 / S5 Sportback",
-    generation: "B9 (2018–present)",
-    why: "Sporty coupe/Sportback with solid 3.0T. Good alternative if he wants something lower and sportier.",
-    tags: ["coupe", "awd", "v6", "value"],
-    engine: "2.0T or 3.0T EA839",
-    packages: ["Premium Plus or Prestige", "Adaptive suspension", "B&O audio"],
-    notes: "S5 is the stronger engine. Prestige is the one to buy. Secondary to Lexus/Genesis on reliability."
-  },
-  {
-    name: "Lexus LX 570 / 600",
-    generation: "URJ200 (2008–2021) / J300 (2022+)",
-    why: "Flagship body-on-frame V8 SUV. Bulletproof and holds value extremely well.",
-    tags: ["suv", "awd", "v8", "reliability", "comfort"],
-    engine: "5.7L V8 or newer twin-turbo V6",
-    packages: ["Luxury", "Executive", "Off-road"],
-    notes: "One of the most residual-strong luxury SUVs. High fuel use but nearly unbreakable."
-  }
+  // ========== SEDANS (15) ==========
+  { name: "2021+ Mercedes E450 4MATIC", generation: "W213 (2017–2023) — buy 2021+ only", why: "New M256 inline-6 mild-hybrid. Excellent generation-gap value.", tags: ["sedan","awd","i6","value","comfort","2021"], engine: "3.0L M256 I6 + 48V mild hybrid (362 hp)", packages: ["Driver Assistance","AIR BODY CONTROL","Premium Package","AMG Line"], notes: "2021+ only for M256. Pre-facelift used older V6." },
+  { name: "BMW 540i / 540i xDrive (G30)", generation: "G30 (2017–2023) — prefer 2021+ LCI", why: "B58 is one of BMW’s most reliable modern engines.", tags: ["sedan","awd","i6","reliability","value","2018"], engine: "3.0L B58 turbo I6 (335–375 hp)", packages: ["M Sport","Driving Assistance Pro","Premium","Executive"], notes: "Prefer 2021+ for mild-hybrid and refreshed interior." },
+  { name: "BMW M340i xDrive", generation: "G20 (2019–present)", why: "B58 in a more agile, modern chassis. Excellent daily + fun balance.", tags: ["sedan","awd","i6","reliability","value","2020"], engine: "3.0L B58 turbo I6 (382–386 hp)", packages: ["M Sport","Premium Package","Driving Assistance"], notes: "One of the best B58 applications available." },
+  { name: "Lexus LS 500", generation: "XF50 (2018–present)", why: "Twin-turbo V6, extremely reliable, big depreciation.", tags: ["sedan","awd","v6","reliability","comfort","2018"], engine: "3.5L twin-turbo V6 (416 hp)", packages: ["Luxury/Executive","Air suspension","Mark Levinson"], notes: "Quiet flagship with heavy residual drop from high stickers." },
+  { name: "Genesis G80 3.5T", generation: "2nd gen (2021–present)", why: "Modern redesign, strong value, twin-turbo V6, great warranty.", tags: ["sedan","awd","v6","value","2021"], engine: "3.5L twin-turbo V6 (375 hp)", packages: ["Advanced or Prestige","Nappa ventilated seats","Lexicon"], notes: "Look for loaded trims. Best pure value in segment." },
+  { name: "Audi A6 3.0T / S6", generation: "C8 (2019–present)", why: "Solid EA839 V6 with good highway manners and tech.", tags: ["sedan","awd","v6","value","2019"], engine: "3.0L EA839 turbo V6 (335–349+ hp)", packages: ["Premium Plus/Prestige","Adaptive air","B&O audio"], notes: "Prestige is the one to buy. Service history important." },
+  { name: "BMW 740i xDrive (G11)", generation: "G11 (2016–2022)", why: "Flagship sedan with B58 and massive depreciation.", tags: ["sedan","awd","i6","value","comfort","2018"], engine: "3.0L B58 turbo I6", packages: ["Executive","Premium","Driving Assistance Pro"], notes: "Huge value drop from $80k–$100k+ originals. Prefer lower miles." },
+  { name: "Lexus ES 350 / 300h", generation: "XZ10 (2019–present)", why: "Extremely reliable midsize luxury sedan with excellent residual and comfort.", tags: ["sedan","awd","v6","reliability","comfort","value"], engine: "3.5L V6 or hybrid", packages: ["Luxury","Ultra Luxury","Mark Levinson"], notes: "One of the most reliable luxury sedans. Hybrid for efficiency." },
+  { name: "Genesis G70 3.3T", generation: "1st gen (2019–present)", why: "Sporty compact luxury sedan with twin-turbo V6 and strong value.", tags: ["sedan","awd","v6","value","2019"], engine: "3.3L twin-turbo V6 (365 hp)", packages: ["Prestige","Sport","Advanced"], notes: "Great driving dynamics and warranty. Prefer later years." },
+  { name: "Mercedes S450 / S500 (W222/W223)", generation: "W222 (2014–2020) / W223 (2021+)", why: "Flagship with M256 on later models. Huge depreciation on earlier years.", tags: ["sedan","awd","i6","value","comfort"], engine: "3.0L M256 I6 mild-hybrid on newer", packages: ["Premium","Executive","AIRMATIC"], notes: "Prefer 2018+ or 2021+ for modern tech. Service history critical." },
+  { name: "Lexus IS 350 / IS 500", generation: "XE30 (2014–present)", why: "Reliable V6 or bulletproof V8. Sporty and holds value.", tags: ["sedan","awd","v6","v8","reliability"], engine: "3.5L V6 or 5.0L V8 (IS 500)", packages: ["F Sport","Luxury","Mark Levinson"], notes: "IS 500 is the modern V8 option. Very low-drama ownership." },
+  { name: "Audi A8 3.0T", generation: "D5 (2018–present)", why: "Flagship sedan with solid V6 and strong depreciation.", tags: ["sedan","awd","v6","value","comfort"], engine: "3.0L turbo V6", packages: ["Prestige","Executive","Adaptive air"], notes: "Big residual drop. Prefer well-optioned examples with full history." },
+  { name: "Acura TLX Type S", generation: "2nd gen (2021–present)", why: "Modern sport sedan with turbo V6, good reliability, and value.", tags: ["sedan","awd","v6","value","2021"], engine: "3.0L turbo V6 (355 hp)", packages: ["A-Spec","Advance","Type S"], notes: "Strong performance and features for the money. Prefer 2022+." },
+  { name: "Volvo S90 T6 / T8", generation: "SPA (2017–present)", why: "Comfortable, safe, modern feel with solid power and depreciation.", tags: ["sedan","awd","i6","comfort","value"], engine: "2.0L turbo/supercharged or hybrid", packages: ["Inscription","Momentum","Polestar"], notes: "Excellent highway comfort. Check for software and suspension service." },
+  { name: "Cadillac CT5 / CT5-V", generation: "Current (2020–present)", why: "Modern American luxury with strong V6 and good value.", tags: ["sedan","awd","v6","value","2020"], engine: "3.0L twin-turbo V6", packages: ["Premium Luxury","Sport","V-Series"], notes: "Prefer higher trims. Solid residual drop and modern tech." },
+
+  // ========== SUVs (15) ==========
+  { name: "Lexus RX 350 / 350h", generation: "AL20 (2016–2022) last NA V6 gen", why: "Extremely reliable V6. Quiet, comfortable, strong residual.", tags: ["suv","awd","v6","reliability","comfort","value"], engine: "3.5L NA V6 (295 hp) or hybrid", packages: ["Luxury","F Sport","Mark Levinson"], notes: "Prefer 2020+ for better tech. One of the safest long-term luxury SUVs." },
+  { name: "Lexus GX 460", generation: "J150 (2010–2023)", why: "Bulletproof V8 body-on-frame luxury SUV.", tags: ["suv","awd","v8","reliability","comfort"], engine: "4.6L V8 (301 hp)", packages: ["Luxury","Premium","Off-road"], notes: "Nearly indestructible. Excellent residual. Prefer 2014+ updates." },
+  { name: "Lexus LX 570 / 600", generation: "URJ200 / J300", why: "Flagship body-on-frame. Extremely reliable and holds value.", tags: ["suv","awd","v8","reliability","comfort"], engine: "5.7L V8 or newer twin-turbo V6", packages: ["Luxury","Executive"], notes: "High residual. High fuel use but tank-like durability." },
+  { name: "Genesis GV70 3.5T", generation: "1st gen (2022–present)", why: "Modern compact luxury SUV with strong V6 and great value.", tags: ["suv","awd","v6","value","2022"], engine: "3.5L twin-turbo V6 (375 hp)", packages: ["Advanced","Sport Prestige"], notes: "Prefer 2023+ if possible. Excellent warranty and features." },
+  { name: "Genesis GV80 3.5T", generation: "1st gen (2021–present)", why: "Midsize luxury SUV with modern interior and strong value.", tags: ["suv","awd","v6","value","comfort","2021"], engine: "3.5L twin-turbo V6 (375 hp)", packages: ["Advanced","Prestige","Air suspension"], notes: "Loaded trims feel premium. Good residual vs German rivals." },
+  { name: "BMW X5 xDrive40i (G05)", generation: "G05 (2019–present)", why: "B58 power in a refined midsize luxury SUV.", tags: ["suv","awd","i6","reliability","value"], engine: "3.0L B58 turbo I6", packages: ["M Sport","Premium","Driving Assistance Pro"], notes: "B58 is excellent. Watch early transfer case and cooling items." },
+  { name: "BMW X3 M40i", generation: "G01 (2018–2024)", why: "Compact SUV with excellent B58. Fun and reliable.", tags: ["suv","awd","i6","reliability","value"], engine: "3.0L B58 turbo I6", packages: ["M Sport","Premium"], notes: "One of the best B58 SUVs for value and driving." },
+  { name: "Mercedes GLE 450", generation: "V167 (2020–present)", why: "M256 inline-6 in a comfortable midsize SUV.", tags: ["suv","awd","i6","comfort","value","2021"], engine: "3.0L M256 I6 mild-hybrid", packages: ["AMG Line","Driver Assistance","Air suspension"], notes: "Prefer 2021+. Check air suspension service history." },
+  { name: "Lexus NX 350 / 350h", generation: "AZ20 (2022–present)", why: "Modern compact luxury SUV with reliable powertrains.", tags: ["suv","awd","v6","reliability","value"], engine: "2.4L turbo or hybrid", packages: ["Luxury","F Sport","Premium"], notes: "Newer gen feels current. Strong reliability reputation." },
+  { name: "Acura MDX", generation: "4th gen (2022–present)", why: "Reliable three-row luxury SUV with strong features and value.", tags: ["suv","awd","v6","reliability","value"], engine: "3.5L V6 or Type S turbo", packages: ["Technology","Advance","Type S"], notes: "Prefer 2022+ redesign. Excellent long-term ownership." },
+  { name: "BMW X7 xDrive40i", generation: "G07 (2019–present)", why: "Full-size luxury SUV with B58. Comfortable and depreciates well.", tags: ["suv","awd","i6","comfort","value"], engine: "3.0L B58 turbo I6", packages: ["Executive","Premium","M Sport"], notes: "Big residual drop. B58 helps reliability. Prefer later years." },
+  { name: "Mercedes GLS 450", generation: "X167 (2020–present)", why: "Full-size luxury SUV with M256. Quiet and spacious.", tags: ["suv","awd","i6","comfort","value"], engine: "3.0L M256 I6", packages: ["Premium","Driver Assistance","Air suspension"], notes: "Prefer post-2020. Check for air and electronics service." },
+  { name: "Audi Q5 3.0T / SQ5", generation: "FY (2018–present)", why: "Compact luxury SUV with solid V6 and good tech.", tags: ["suv","awd","v6","value"], engine: "3.0L turbo V6", packages: ["Premium Plus","Prestige"], notes: "SQ5 is the stronger engine. Service history important." },
+  { name: "Porsche Cayenne (base/S)", generation: "E3 (2019–present)", why: "Sporty luxury SUV with strong residual and solid engines.", tags: ["suv","awd","v6","value"], engine: "3.0L turbo V6 or higher", packages: ["Premium","Sport Chrono"], notes: "Strong residual for the class. Prefer well-maintained examples." },
+  { name: "Infiniti QX60 / QX80", generation: "Current gens", why: "Comfortable luxury SUVs with proven V6/V8 and value.", tags: ["suv","awd","v6","v8","value","comfort"], engine: "V6 or V8 options", packages: ["Luxe","Sensory","Autograph"], notes: "QX80 has strong residual. Good for family use." },
+
+  // ========== COUPES (15) ==========
+  { name: "BMW 840i xDrive", generation: "G15 (2019–present)", why: "Grand tourer coupe with reliable B58 and strong depreciation.", tags: ["coupe","awd","i6","value","comfort"], engine: "3.0L B58 turbo I6", packages: ["M Sport","Premium","Driving Assistance"], notes: "Prefer B58 over V8 for reliability. Excellent cruiser." },
+  { name: "BMW M440i xDrive", generation: "G22 (2021–present)", why: "Modern coupe with B58. Sporty yet refined.", tags: ["coupe","awd","i6","reliability","value","2021"], engine: "3.0L B58 turbo I6 (382 hp)", packages: ["M Sport","Premium"], notes: "Current-gen 4 Series. Excellent B58 application." },
+  { name: "Lexus RC 350 / RC F", generation: "XC10", why: "Reliable V6 or V8 coupe. Low-drama ownership.", tags: ["coupe","awd","v6","v8","reliability"], engine: "3.5L V6 or 5.0L V8", packages: ["F Sport","Luxury"], notes: "Very reliable. RC F for the bulletproof V8." },
+  { name: "Audi A5 / S5 Coupe or Sportback", generation: "B9 (2018–2024)", why: "Stylish coupe with solid 3.0T and good features.", tags: ["coupe","awd","v6","value"], engine: "3.0L EA839 turbo V6", packages: ["Premium Plus","Prestige","B&O"], notes: "Sportback offers more practicality. Prestige is best." },
+  { name: "Mercedes E450 Coupe", generation: "C238 (2018–2023) — prefer 2021+", why: "Luxury coupe with M256 on later years. Smooth and modern.", tags: ["coupe","awd","i6","value","comfort","2021"], engine: "3.0L M256 I6 mild-hybrid", packages: ["AMG Line","Premium","Driver Assistance"], notes: "2021+ for the new engine. Elegant grand tourer." },
+  { name: "BMW 440i / 440i xDrive (F32/G22)", generation: "F32 (2014–2020) / G22", why: "Classic B58 coupe. Strong value on earlier years.", tags: ["coupe","awd","i6","reliability","value"], engine: "3.0L B58 turbo I6", packages: ["M Sport","Premium"], notes: "Prefer 2018+ F32 or G22. Excellent reliability with B58." },
+  { name: "Lexus LC 500", generation: "URZ100 (2018–present)", why: "Stunning grand tourer with naturally aspirated V8. Extremely reliable.", tags: ["coupe","rwd","v8","reliability","comfort"], engine: "5.0L NA V8 (471 hp)", packages: ["Luxury","Sport","Mark Levinson"], notes: "One of the most reliable modern V8 coupes. Holds value well." },
+  { name: "Audi S5 Coupe", generation: "B9", why: "Sportier version of A5 with stronger V6.", tags: ["coupe","awd","v6","value"], engine: "3.0L turbo V6 (~349 hp)", packages: ["Prestige","Adaptive suspension"], notes: "Better power than base A5. Full service history preferred." },
+  { name: "Mercedes C300 / C43 Coupe", generation: "W205 (2015–2023)", why: "Compact luxury coupe with solid engines and depreciation.", tags: ["coupe","awd","i4","v6","value"], engine: "Turbo I4 or V6 AMG", packages: ["AMG Line","Premium"], notes: "C43 is more engaging. Prefer later years for reliability." },
+  { name: "BMW M240i xDrive", generation: "G42 (2022–present)", why: "Compact coupe with B58. Fun and modern.", tags: ["coupe","awd","i6","reliability","value","2022"], engine: "3.0L B58 turbo I6", packages: ["M Sport","Premium"], notes: "Excellent B58 in a smaller, sharper package." },
+  { name: "Porsche 718 Cayman / Boxster (base/S)", generation: "982 (2017–present)", why: "Mid-engine sports coupe with strong residual and reliability.", tags: ["coupe","rwd","i4","value"], engine: "2.0T or 2.5T flat-4", packages: ["Sport Chrono","Premium"], notes: "Strong residual. Prefer well-optioned examples." },
+  { name: "Audi TT / TTS", generation: "8S (2015–2023)", why: "Stylish small coupe with solid turbo engines.", tags: ["coupe","awd","i4","value"], engine: "2.0T or 2.5T", packages: ["Premium Plus","Virtual Cockpit"], notes: "TTS is more powerful. Fun daily with good residual." },
+  { name: "Mercedes CLE Coupe", generation: "C236 (2024–present)", why: "New generation coupe with modern tech and solid power.", tags: ["coupe","awd","i6","value","2024"], engine: "Inline-6 options", packages: ["AMG Line","Premium"], notes: "Very new — limited used data but modern and refined." },
+  { name: "Genesis G70 Coupe? / G70 sedan sporty", generation: "Current", why: "Sporty luxury with strong V6 and value (if coupe not available, high-spec sedan).", tags: ["coupe","sedan","awd","v6","value"], engine: "3.3L twin-turbo V6", packages: ["Sport Prestige"], notes: "G70 is primarily sedan but highly sporty. Strong warranty." },
+  { name: "BMW Z4 M40i", generation: "G29 (2019–present)", why: "Open-top grand tourer with B58. Fun and reliable.", tags: ["coupe","rwd","i6","reliability","value"], engine: "3.0L B58 turbo I6", packages: ["M Sport","Premium"], notes: "Roadster version of B58. Excellent for fair-weather enjoyment." }
 ];
 
 let current = 0;
@@ -318,9 +233,9 @@ function showResults() {
 
   const scored = cars.map(car => {
     let score = 0;
-    if (answers[1] === 0 && car.tags.includes('sedan')) score += 2;
-    if (answers[1] === 1 && car.tags.includes('coupe')) score += 2;
-    if (answers[1] === 2 && car.tags.includes('suv')) score += 2;
+    if (answers[1] === 0 && car.tags.includes('sedan')) score += 3;
+    if (answers[1] === 1 && car.tags.includes('coupe')) score += 3;
+    if (answers[1] === 2 && car.tags.includes('suv')) score += 3;
     if (answers[2] === 0 && car.tags.includes('awd')) score += 2;
     if (answers[3] === 0 && (car.tags.includes('i6') || car.tags.includes('v6'))) score += 2;
     if (answers[3] === 1 && car.tags.includes('v8')) score += 2;
