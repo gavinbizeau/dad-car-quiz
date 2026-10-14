@@ -5,116 +5,173 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dad's Luxury Car Quiz</title>
 <style>
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 20px; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-  .container { max-width: 600px; width: 100%; background: #1e293b; border-radius: 16px; padding: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-  h1 { margin: 0 0 8px; font-size: 24px; text-align: center; }
-  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 28px; font-size: 14px; }
-  .progress { height: 6px; background: #334155; border-radius: 3px; margin-bottom: 24px; overflow: hidden; }
-  .progress-bar { height: 100%; background: #3b82f6; width: 0%; transition: width 0.3s; }
-  .question { font-size: 18px; font-weight: 600; margin-bottom: 20px; line-height: 1.4; }
-  .options { display: flex; flex-direction: column; gap: 10px; }
-  .option { background: #334155; border: 2px solid transparent; border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; text-align: left; font-size: 15px; }
-  .option:hover { background: #475569; }
-  .option.selected { border-color: #3b82f6; background: #1e40af; }
-  .btn { background: #3b82f6; color: white; border: none; border-radius: 10px; padding: 14px 24px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px; }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn:hover:not(:disabled) { background: #2563eb; }
-  .results { display: none; }
-  .results.show { display: block; }
-  .car { background: #334155; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-  .car h3 { margin: 0 0 6px; font-size: 16px; }
-  .car p { margin: 0; font-size: 14px; color: #cbd5e1; line-height: 1.5; }
-  .reason { color: #93c5fd; font-size: 13px; margin-top: 6px; }
-  .restart { background: transparent; color: #94a3b8; border: 1px solid #475569; margin-top: 16px; }
-  .restart:hover { background: #334155; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #fff; margin: 0; padding: 20px; line-height: 1.5; }
+  .container { max-width: 480px; margin: 0 auto; background: #1a1a1a; border-radius: 16px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  h1 { font-size: 24px; margin: 0 0 8px; }
+  .subtitle { color: #aaa; margin-bottom: 24px; font-size: 14px; }
+  .question { font-size: 20px; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  button, .option { background: #2a2a2a; border: 1px solid #333; color: #fff; padding: 16px; border-radius: 12px; font-size: 16px; cursor: pointer; text-align: left; transition: all 0.2s; }
+  button:hover, .option:hover { background: #333; border-color: #555; }
+  button.primary { background: #0066cc; border-color: #0066cc; font-weight: 600; }
+  .progress { height: 4px; background: #333; border-radius: 2px; margin-bottom: 20px; }
+  .progress-bar { height: 100%; background: #0066cc; width: 0%; transition: width 0.3s; }
+  .result-card { background: #222; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #0066cc; }
+  .result-card h3 { margin: 0 0 8px; font-size: 18px; }
+  .result-card p { margin: 0; color: #ccc; font-size: 14px; }
+  .hidden { display: none; }
+  .restart { margin-top: 20px; width: 100%; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>Luxury Car Finder</h1>
-  <p class="subtitle">Answer a few questions. Get 3 solid recommendations.</p>
-  <div class="progress"><div class="progress-bar" id="bar"></div></div>
+  <div class="progress"><div class="progress-bar" id="progress"></div></div>
+  <h1>Find Your Next Luxury Car</h1>
+  <p class="subtitle">Quick quiz for a reliable, modern-feeling luxury car with strong value.</p>
+  
   <div id="quiz">
-    <div class="question" id="q"></div>
-    <div class="options" id="opts"></div>
-    <button class="btn" id="next" disabled>Next</button>
+    <div class="question" id="question">Loading...</div>
+    <div class="options" id="options"></div>
   </div>
-  <div class="results" id="results">
-    <h2 style="text-align:center;margin-top:0">Your top matches</h2>
-    <div id="recs"></div>
-    <button class="btn restart" onclick="location.reload()">Start over</button>
+  
+  <div id="results" class="hidden">
+    <h2>Your Top Matches</h2>
+    <div id="results-list"></div>
+    <button class="primary restart" onclick="restart()">Start Over</button>
   </div>
 </div>
+
 <script>
 const questions = [
-  { id: 'budget', text: 'What\'s your max budget?', options: ['Under $30k', '$30–40k', '$40–50k', '$50k+'] },
-  { id: 'style', text: 'Preferred body style?', options: ['Sedan', 'Coupe', 'SUV / Crossover', 'No preference'] },
-  { id: 'year', text: 'How new does it need to feel?', options: ['2021 or newer', '2018–2020 is fine', 'Flexible if it\'s the right car'] },
-  { id: 'power', text: 'Power preference?', options: ['Strong I6 or V6 is perfect', 'Prefer a proven V8 if reliable', 'Open to either'] },
-  { id: 'awd', text: 'All-wheel drive?', options: ['Required', 'Nice to have', 'Not important'] },
-  { id: 'priority', text: 'What matters most?', options: ['Max value / depreciation', 'Reliability first', 'Highway comfort & quiet', 'Modern tech & features'] },
-  { id: 'features', text: 'Any must-haves? (pick the closest)', options: ['Ventilated / massage seats', 'Air suspension', 'Adaptive cruise / driver assists', 'Premium audio', 'None critical'] }
+  {
+    q: "What's your max budget (out-the-door)?",
+    options: ["Under $35k", "$35k – $45k", "$45k – $55k", "$55k+"]
+  },
+  {
+    q: "Preferred body style?",
+    options: ["Sedan", "Coupe", "SUV", "No preference"]
+  },
+  {
+    q: "How important is AWD?",
+    options: ["Must have", "Nice to have", "RWD is fine"]
+  },
+  {
+    q: "Powertrain preference?",
+    options: ["Strong inline-6 or V6 preferred", "Open to a proven V8", "No strong preference"]
+  },
+  {
+    q: "Top priority?",
+    options: ["Maximum value / depreciation", "Reliability above all", "Highway comfort & quiet", "Feels brand new / modern tech"]
+  },
+  {
+    q: "Must-have features? (pick the most important)",
+    options: ["Air suspension", "Ventilated / massage seats", "Adaptive cruise / driver assists", "Premium audio (Burmester etc.)", "None in particular"]
+  },
+  {
+    q: "Max mileage you're comfortable with?",
+    options: ["Under 30k", "30k – 50k", "50k – 70k", "Higher is okay if maintained"]
+  },
+  {
+    q: "Oldest year you'd consider?",
+    options: ["2021+", "2019+", "2017+", "Flexible if it feels modern"]
+  }
 ];
 
 const cars = [
-  { name: '2021+ Mercedes E450 4MATIC', why: 'New M256 inline-6 mild-hybrid. Heavy depreciation from ~$70k sticker. Smooth, quiet, modern. Strong value when loaded.', match: ['Sedan', '2021 or newer', 'Strong I6 or V6 is perfect', 'Required', 'Max value / depreciation', 'Highway comfort & quiet'] },
-  { name: '2018–2023 BMW 540i xDrive', why: 'B58 inline-6 is one of the most reliable modern BMW engines. Still feels current. Excellent highway car.', match: ['Sedan', '2018–2020 is fine', 'Flexible if it\'s the right car', 'Strong I6 or V6 is perfect', 'Required', 'Reliability first', 'Highway comfort & quiet'] },
-  { name: '2018–2021 Lexus LS 500', why: 'Extremely reliable twin-turbo V6. Flagship quiet and comfort. Big depreciation from original price.', match: ['Sedan', '2018–2020 is fine', 'Prefer a proven V8 if reliable', 'Open to either', 'Reliability first', 'Highway comfort & quiet'] },
-  { name: '2021+ Genesis G80 3.5T', why: 'Best pure value in the segment. Modern interior, strong reliability, heavy depreciation.', match: ['Sedan', '2021 or newer', 'Strong I6 or V6 is perfect', 'Max value / depreciation', 'Modern tech & features'] },
-  { name: '2019–2022 Audi A6 / A7 3.0T', why: 'Smooth turbo V6, good tech, solid if service history is clean. Slightly more mixed long-term reliability.', match: ['Sedan', 'Coupe', '2018–2020 is fine', 'Strong I6 or V6 is perfect', 'Modern tech & features'] }
+  {
+    name: "2021+ Mercedes E450 4MATIC",
+    why: "New M256 inline-6 mild-hybrid. Excellent generation-gap value. Smooth, powerful, and the right engine to buy.",
+    tags: ["sedan", "awd", "i6", "value", "comfort", "2021"]
+  },
+  {
+    name: "BMW 540i / 540i xDrive (G30)",
+    why: "B58 inline-6 is one of the most reliable modern BMW engines. Still feels current and premium.",
+    tags: ["sedan", "awd", "i6", "reliability", "value", "2018"]
+  },
+  {
+    name: "Lexus LS 500",
+    why: "Twin-turbo V6, extremely reliable, big depreciation from original sticker. Quiet flagship feel.",
+    tags: ["sedan", "awd", "v6", "reliability", "comfort", "2018"]
+  },
+  {
+    name: "Genesis G80 3.5T",
+    why: "Strong value, modern interior, good reliability, and twin-turbo V6 power without German maintenance costs.",
+    tags: ["sedan", "awd", "v6", "value", "2021"]
+  },
+  {
+    name: "Audi A6 / A7 3.0T",
+    why: "Solid 3.0T V6, nice highway manners. Secondary pick if the others don't fit.",
+    tags: ["sedan", "coupe", "awd", "v6", "2019"]
+  }
 ];
 
-let step = 0;
-let answers = {};
+let current = 0;
+let answers = [];
 
-function render() {
-  const q = questions[step];
-  document.getElementById('q').textContent = q.text;
-  const opts = document.getElementById('opts');
+function showQuestion() {
+  const q = questions[current];
+  document.getElementById('question').textContent = q.q;
+  const opts = document.getElementById('options');
   opts.innerHTML = '';
-  q.options.forEach(opt => {
-    const div = document.createElement('div');
-    div.className = 'option' + (answers[q.id] === opt ? ' selected' : '');
-    div.textContent = opt;
-    div.onclick = () => { answers[q.id] = opt; render(); document.getElementById('next').disabled = false; };
-    opts.appendChild(div);
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.textContent = opt;
+    btn.onclick = () => select(i);
+    opts.appendChild(btn);
   });
-  document.getElementById('bar').style.width = ((step / questions.length) * 100) + '%';
-  document.getElementById('next').textContent = step === questions.length - 1 ? 'See recommendations' : 'Next';
-  document.getElementById('next').disabled = !answers[q.id];
+  document.getElementById('progress').style.width = ((current / questions.length) * 100) + '%';
 }
 
-document.getElementById('next').onclick = () => {
-  if (step < questions.length - 1) {
-    step++;
-    render();
+function select(i) {
+  answers.push(i);
+  current++;
+  if (current < questions.length) {
+    showQuestion();
   } else {
     showResults();
   }
-};
+}
 
 function showResults() {
-  document.getElementById('quiz').style.display = 'none';
-  document.getElementById('results').classList.add('show');
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('progress').style.width = '100%';
+
+  // Simple scoring
   const scored = cars.map(car => {
     let score = 0;
-    car.match.forEach(m => {
-      if (Object.values(answers).includes(m)) score += 1;
-    });
+    // Budget is open for now
+    if (answers[1] === 0 && car.tags.includes('sedan')) score += 2;
+    if (answers[1] === 1 && car.tags.includes('coupe')) score += 2;
+    if (answers[2] === 0 && car.tags.includes('awd')) score += 2;
+    if (answers[3] === 0 && (car.tags.includes('i6') || car.tags.includes('v6'))) score += 2;
+    if (answers[4] === 0 && car.tags.includes('value')) score += 3;
+    if (answers[4] === 1 && car.tags.includes('reliability')) score += 3;
+    if (answers[4] === 2 && car.tags.includes('comfort')) score += 2;
+    if (answers[7] === 0 && car.tags.includes('2021')) score += 2;
     return { ...car, score };
-  }).sort((a, b) => b.score - a.score).slice(0, 3);
+  }).sort((a, b) => b.score - a.score).slice(0, 4);
 
-  const recs = document.getElementById('recs');
-  scored.forEach(c => {
+  const list = document.getElementById('results-list');
+  list.innerHTML = '';
+  scored.forEach(car => {
     const div = document.createElement('div');
-    div.className = 'car';
-    div.innerHTML = `<h3>${c.name}</h3><p>${c.why}</p><div class="reason">Matched ${c.score} of your preferences</div>`;
-    recs.appendChild(div);
+    div.className = 'result-card';
+    div.innerHTML = `<h3>${car.name}</h3><p>${car.why}</p>`;
+    list.appendChild(div);
   });
 }
 
-render();
+function restart() {
+  current = 0;
+  answers = [];
+  document.getElementById('quiz').classList.remove('hidden');
+  document.getElementById('results').classList.add('hidden');
+  showQuestion();
+}
+
+showQuestion();
 </script>
 </body>
 </html>
