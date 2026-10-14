@@ -25,7 +25,6 @@
   .hidden { display: none; }
   .restart { margin-top: 20px; width: 100%; }
 
-  /* Menu */
   .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 20; display: none; }
   .overlay.open { display: block; }
   .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: #1a1a1a; z-index: 21; transform: translateX(-100%); transition: transform 0.3s; padding: 20px; overflow-y: auto; }
@@ -35,7 +34,6 @@
   .car-link:hover { background: #333; }
   .close-menu { background: none; border: none; color: #aaa; font-size: 20px; float: right; cursor: pointer; }
 
-  /* Detail view */
   .detail-view { display: none; }
   .detail-view.active { display: block; }
   .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -47,6 +45,7 @@
   .section h4 { margin: 0 0 10px; color: #0066cc; }
   .package-list { list-style: none; padding: 0; }
   .package-list li { background: #222; padding: 12px; border-radius: 8px; margin-bottom: 8px; }
+  .gen-box { background: #222; padding: 12px; border-radius: 8px; margin-top: 8px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -101,6 +100,7 @@ const questions = [
 const cars = [
   {
     name: "2021+ Mercedes E450 4MATIC",
+    generation: "W213 (2017–2023) — buy 2021+ only",
     why: "New M256 inline-6 mild-hybrid. Excellent generation-gap value. Smooth, powerful, and the right engine to buy.",
     tags: ["sedan", "awd", "i6", "value", "comfort", "2021"],
     engine: "3.0L M256 inline-6 turbo + 48V EQ Boost mild hybrid (362 hp / 369 lb-ft)",
@@ -111,23 +111,25 @@ const cars = [
       "Warmth & Comfort (heated wheel, rapid heat)",
       "Night Package + AMG Line styling"
     ],
-    notes: "Buy 2021+ only for the new engine. Air suspension is the highway comfort upgrade. Service history on the air system matters. Excellent residual value drop from original $70k+ stickers."
+    notes: "W213 generation. 2020 and earlier use the older V6. 2021+ is the M256 inline-6 with mild hybrid — this is the one to buy. Air suspension is the highway comfort upgrade."
   },
   {
     name: "BMW 540i / 540i xDrive (G30)",
+    generation: "G30 (2017–2023) — prefer 2021+ facelift",
     why: "B58 inline-6 is one of the most reliable modern BMW engines. Still feels current and premium.",
     tags: ["sedan", "awd", "i6", "reliability", "value", "2018"],
-    engine: "3.0L B58 twin-scroll turbo inline-6 (335-375 hp depending on year)",
+    engine: "3.0L B58 twin-scroll turbo inline-6 (335–375 hp depending on year)",
     packages: [
       "M Sport package (sport seats, wheels, steering)",
       "Driving Assistance Professional",
       "Premium Package (HUD, Harman Kardon or Bowers)",
       "Executive Package (ventilated seats, rear shades)"
     ],
-    notes: "B58 is widely regarded as one of BMW’s best modern engines. Prefer 2021+ for the mild-hybrid update and facelift. Avoid high-mileage cars without service records. xDrive is the AWD version."
+    notes: "G30 generation. B58 is one of BMW’s best modern engines. 2021+ facelift adds mild-hybrid and updated tech. xDrive is the AWD version."
   },
   {
     name: "Lexus LS 500",
+    generation: "XF50 (2018–present)",
     why: "Twin-turbo V6, extremely reliable, big depreciation from original sticker. Quiet flagship feel.",
     tags: ["sedan", "awd", "v6", "reliability", "comfort", "2018"],
     engine: "3.5L twin-turbo V6 (416 hp / 442 lb-ft)",
@@ -137,10 +139,11 @@ const cars = [
       "Mark Levinson audio",
       "Panoramic roof + heated/ventilated seats"
     ],
-    notes: "One of the most reliable luxury sedans available. Heavy depreciation from $80k–$100k original stickers. Extremely quiet and comfortable for long highway trips. Maintenance costs are lower than German equivalents."
+    notes: "XF50 generation. Extremely reliable twin-turbo V6. Heavy depreciation from $80k–$100k stickers. Quiet flagship for long highway trips."
   },
   {
     name: "Genesis G80 3.5T",
+    generation: "2nd gen (2021–present redesign)",
     why: "Strong value, modern interior, good reliability, and twin-turbo V6 power without German maintenance costs.",
     tags: ["sedan", "awd", "v6", "value", "2021"],
     engine: "3.5L twin-turbo V6 (375 hp / 391 lb-ft)",
@@ -150,10 +153,11 @@ const cars = [
       "Lexicon audio",
       "Driver assistance suite (highway driving assist)"
     ],
-    notes: "Best pure value in the segment. 2021+ redesign feels modern. Strong warranty (10yr/100k powertrain on certified). Avoid base trims — look for Advanced or Prestige for the loaded feel."
+    notes: "2nd-generation redesign (2021+). Much more modern than the previous generation. Best pure value. Look for Advanced or Prestige packages."
   },
   {
     name: "Audi A6 / A7 3.0T",
+    generation: "C8 (2019–present)",
     why: "Solid 3.0T V6, nice highway manners. Secondary pick if the others don't fit.",
     tags: ["sedan", "coupe", "awd", "v6", "2019"],
     engine: "3.0L EA839 turbo V6 (335–349 hp)",
@@ -163,7 +167,7 @@ const cars = [
       "Bang & Olufsen audio",
       "Driver Assistance package"
     ],
-    notes: "A7 is the sportier hatchback-style coupe. Prestige trim is the one to buy for the full feature set. Reliability is good but not quite at Lexus/Genesis levels. Look for cars with full service history."
+    notes: "C8 generation. A7 is the sportier Sportback coupe. Prestige is the fully loaded trim. Good highway car, secondary to the others on reliability."
   }
 ];
 
@@ -199,7 +203,8 @@ function showDetail(index) {
   const content = document.getElementById('detail-content');
   content.innerHTML = `
     <h2>${car.name}</h2>
-    <div>${car.tags.map(t => `<span class="badge">${t}</span>`).join('')}</div>
+    <div class="gen-box"><strong>Generation:</strong> ${car.generation}</div>
+    <div style="margin-top:12px;">${car.tags.map(t => `<span class="badge">${t}</span>`).join('')}</div>
     <p style="color:#ccc; margin-top:12px;">${car.why}</p>
     <div class="section">
       <h4>Engine</h4>
