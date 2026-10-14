@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dad's Luxury Car Quiz</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #fff; margin: 0; padding: 20px; line-height: 1.5; }
-  .container { max-width: 480px; margin: 0 auto; background: #1a1a1a; border-radius: 16px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #fff; margin: 0; padding: 0; line-height: 1.5; }
+  .top-bar { display: flex; align-items: center; padding: 16px 20px; background: #1a1a1a; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 10; }
+  .menu-btn { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 4px 8px; }
+  .title { font-size: 18px; font-weight: 600; margin-left: 12px; }
+  .container { max-width: 520px; margin: 0 auto; padding: 20px; }
+  .progress { height: 4px; background: #333; border-radius: 2px; margin-bottom: 20px; }
+  .progress-bar { height: 100%; background: #0066cc; width: 0%; transition: width 0.3s; }
   h1 { font-size: 24px; margin: 0 0 8px; }
   .subtitle { color: #aaa; margin-bottom: 24px; font-size: 14px; }
   .question { font-size: 20px; margin-bottom: 20px; }
@@ -14,16 +19,49 @@
   button, .option { background: #2a2a2a; border: 1px solid #333; color: #fff; padding: 16px; border-radius: 12px; font-size: 16px; cursor: pointer; text-align: left; transition: all 0.2s; }
   button:hover, .option:hover { background: #333; border-color: #555; }
   button.primary { background: #0066cc; border-color: #0066cc; font-weight: 600; }
-  .progress { height: 4px; background: #333; border-radius: 2px; margin-bottom: 20px; }
-  .progress-bar { height: 100%; background: #0066cc; width: 0%; transition: width 0.3s; }
-  .result-card { background: #222; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #0066cc; }
+  .result-card { background: #222; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #0066cc; cursor: pointer; }
   .result-card h3 { margin: 0 0 8px; font-size: 18px; }
   .result-card p { margin: 0; color: #ccc; font-size: 14px; }
   .hidden { display: none; }
   .restart { margin-top: 20px; width: 100%; }
+
+  /* Menu */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 20; display: none; }
+  .overlay.open { display: block; }
+  .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: #1a1a1a; z-index: 21; transform: translateX(-100%); transition: transform 0.3s; padding: 20px; overflow-y: auto; }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar h3 { margin: 0 0 16px; font-size: 18px; }
+  .car-link { display: block; padding: 14px 12px; background: #2a2a2a; border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
+  .car-link:hover { background: #333; }
+  .close-menu { background: none; border: none; color: #aaa; font-size: 20px; float: right; cursor: pointer; }
+
+  /* Detail view */
+  .detail-view { display: none; }
+  .detail-view.active { display: block; }
+  .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .back-btn { background: #2a2a2a; border: 1px solid #333; color: #fff; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+  .car-detail { background: #1a1a1a; border-radius: 16px; padding: 20px; }
+  .car-detail h2 { margin: 0 0 8px; }
+  .badge { display: inline-block; background: #0066cc; color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 12px; margin-right: 6px; margin-bottom: 8px; }
+  .section { margin-top: 20px; }
+  .section h4 { margin: 0 0 10px; color: #0066cc; }
+  .package-list { list-style: none; padding: 0; }
+  .package-list li { background: #222; padding: 12px; border-radius: 8px; margin-bottom: 8px; }
 </style>
 </head>
 <body>
+<div class="top-bar">
+  <button class="menu-btn" onclick="openMenu()">☰</button>
+  <div class="title">Luxury Car Quiz</div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+<div class="sidebar" id="sidebar">
+  <button class="close-menu" onclick="closeMenu()">✕</button>
+  <h3>All Cars</h3>
+  <div id="car-menu"></div>
+</div>
+
 <div class="container">
   <div class="progress"><div class="progress-bar" id="progress"></div></div>
   <h1>Find Your Next Luxury Car</h1>
@@ -39,74 +77,153 @@
     <div id="results-list"></div>
     <button class="primary restart" onclick="restart()">Start Over</button>
   </div>
+
+  <div id="detail" class="detail-view">
+    <div class="detail-header">
+      <button class="back-btn" onclick="closeDetail()">← Back</button>
+    </div>
+    <div id="detail-content" class="car-detail"></div>
+  </div>
 </div>
 
 <script>
 const questions = [
-  {
-    q: "What's your max budget (out-the-door)?",
-    options: ["Under $35k", "$35k – $45k", "$45k – $55k", "$55k+"]
-  },
-  {
-    q: "Preferred body style?",
-    options: ["Sedan", "Coupe", "SUV", "No preference"]
-  },
-  {
-    q: "How important is AWD?",
-    options: ["Must have", "Nice to have", "RWD is fine"]
-  },
-  {
-    q: "Powertrain preference?",
-    options: ["Strong inline-6 or V6 preferred", "Open to a proven V8", "No strong preference"]
-  },
-  {
-    q: "Top priority?",
-    options: ["Maximum value / depreciation", "Reliability above all", "Highway comfort & quiet", "Feels brand new / modern tech"]
-  },
-  {
-    q: "Must-have features? (pick the most important)",
-    options: ["Air suspension", "Ventilated / massage seats", "Adaptive cruise / driver assists", "Premium audio (Burmester etc.)", "None in particular"]
-  },
-  {
-    q: "Max mileage you're comfortable with?",
-    options: ["Under 30k", "30k – 50k", "50k – 70k", "Higher is okay if maintained"]
-  },
-  {
-    q: "Oldest year you'd consider?",
-    options: ["2021+", "2019+", "2017+", "Flexible if it feels modern"]
-  }
+  { q: "What's your max budget (out-the-door)?", options: ["Under $35k", "$35k – $45k", "$45k – $55k", "$55k+"] },
+  { q: "Preferred body style?", options: ["Sedan", "Coupe", "SUV", "No preference"] },
+  { q: "How important is AWD?", options: ["Must have", "Nice to have", "RWD is fine"] },
+  { q: "Powertrain preference?", options: ["Strong inline-6 or V6 preferred", "Open to a proven V8", "No strong preference"] },
+  { q: "Top priority?", options: ["Maximum value / depreciation", "Reliability above all", "Highway comfort & quiet", "Feels brand new / modern tech"] },
+  { q: "Must-have features? (pick the most important)", options: ["Air suspension", "Ventilated / massage seats", "Adaptive cruise / driver assists", "Premium audio (Burmester etc.)", "None in particular"] },
+  { q: "Max mileage you're comfortable with?", options: ["Under 30k", "30k – 50k", "50k – 70k", "Higher is okay if maintained"] },
+  { q: "Oldest year you'd consider?", options: ["2021+", "2019+", "2017+", "Flexible if it feels modern"] }
 ];
 
 const cars = [
   {
     name: "2021+ Mercedes E450 4MATIC",
     why: "New M256 inline-6 mild-hybrid. Excellent generation-gap value. Smooth, powerful, and the right engine to buy.",
-    tags: ["sedan", "awd", "i6", "value", "comfort", "2021"]
+    tags: ["sedan", "awd", "i6", "value", "comfort", "2021"],
+    engine: "3.0L M256 inline-6 turbo + 48V EQ Boost mild hybrid (362 hp / 369 lb-ft)",
+    packages: [
+      "Driver Assistance Package (DISTRONIC, Active Steering, Lane Change)",
+      "AIR BODY CONTROL air suspension",
+      "Premium Package (Burmester, Surround View)",
+      "Warmth & Comfort (heated wheel, rapid heat)",
+      "Night Package + AMG Line styling"
+    ],
+    notes: "Buy 2021+ only for the new engine. Air suspension is the highway comfort upgrade. Service history on the air system matters. Excellent residual value drop from original $70k+ stickers."
   },
   {
     name: "BMW 540i / 540i xDrive (G30)",
     why: "B58 inline-6 is one of the most reliable modern BMW engines. Still feels current and premium.",
-    tags: ["sedan", "awd", "i6", "reliability", "value", "2018"]
+    tags: ["sedan", "awd", "i6", "reliability", "value", "2018"],
+    engine: "3.0L B58 twin-scroll turbo inline-6 (335-375 hp depending on year)",
+    packages: [
+      "M Sport package (sport seats, wheels, steering)",
+      "Driving Assistance Professional",
+      "Premium Package (HUD, Harman Kardon or Bowers)",
+      "Executive Package (ventilated seats, rear shades)"
+    ],
+    notes: "B58 is widely regarded as one of BMW’s best modern engines. Prefer 2021+ for the mild-hybrid update and facelift. Avoid high-mileage cars without service records. xDrive is the AWD version."
   },
   {
     name: "Lexus LS 500",
     why: "Twin-turbo V6, extremely reliable, big depreciation from original sticker. Quiet flagship feel.",
-    tags: ["sedan", "awd", "v6", "reliability", "comfort", "2018"]
+    tags: ["sedan", "awd", "v6", "reliability", "comfort", "2018"],
+    engine: "3.5L twin-turbo V6 (416 hp / 442 lb-ft)",
+    packages: [
+      "Luxury or Executive package",
+      "Air suspension (optional on higher trims)",
+      "Mark Levinson audio",
+      "Panoramic roof + heated/ventilated seats"
+    ],
+    notes: "One of the most reliable luxury sedans available. Heavy depreciation from $80k–$100k original stickers. Extremely quiet and comfortable for long highway trips. Maintenance costs are lower than German equivalents."
   },
   {
     name: "Genesis G80 3.5T",
     why: "Strong value, modern interior, good reliability, and twin-turbo V6 power without German maintenance costs.",
-    tags: ["sedan", "awd", "v6", "value", "2021"]
+    tags: ["sedan", "awd", "v6", "value", "2021"],
+    engine: "3.5L twin-turbo V6 (375 hp / 391 lb-ft)",
+    packages: [
+      "Advanced or Prestige package",
+      "Nappa leather + ventilated seats",
+      "Lexicon audio",
+      "Driver assistance suite (highway driving assist)"
+    ],
+    notes: "Best pure value in the segment. 2021+ redesign feels modern. Strong warranty (10yr/100k powertrain on certified). Avoid base trims — look for Advanced or Prestige for the loaded feel."
   },
   {
     name: "Audi A6 / A7 3.0T",
     why: "Solid 3.0T V6, nice highway manners. Secondary pick if the others don't fit.",
-    tags: ["sedan", "coupe", "awd", "v6", "2019"]
+    tags: ["sedan", "coupe", "awd", "v6", "2019"],
+    engine: "3.0L EA839 turbo V6 (335–349 hp)",
+    packages: [
+      "Premium Plus or Prestige",
+      "Adaptive air suspension",
+      "Bang & Olufsen audio",
+      "Driver Assistance package"
+    ],
+    notes: "A7 is the sportier hatchback-style coupe. Prestige trim is the one to buy for the full feature set. Reliability is good but not quite at Lexus/Genesis levels. Look for cars with full service history."
   }
 ];
 
 let current = 0;
 let answers = [];
+
+function openMenu() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeMenu() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function buildMenu() {
+  const menu = document.getElementById('car-menu');
+  menu.innerHTML = '';
+  cars.forEach((car, i) => {
+    const div = document.createElement('div');
+    div.className = 'car-link';
+    div.textContent = car.name;
+    div.onclick = () => { closeMenu(); showDetail(i); };
+    menu.appendChild(div);
+  });
+}
+
+function showDetail(index) {
+  const car = cars[index];
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('detail').classList.add('active');
+  const content = document.getElementById('detail-content');
+  content.innerHTML = `
+    <h2>${car.name}</h2>
+    <div>${car.tags.map(t => `<span class="badge">${t}</span>`).join('')}</div>
+    <p style="color:#ccc; margin-top:12px;">${car.why}</p>
+    <div class="section">
+      <h4>Engine</h4>
+      <p>${car.engine}</p>
+    </div>
+    <div class="section">
+      <h4>Top Packages to Look For</h4>
+      <ul class="package-list">${car.packages.map(p => `<li>${p}</li>`).join('')}</ul>
+    </div>
+    <div class="section">
+      <h4>Diligence Notes</h4>
+      <p>${car.notes}</p>
+    </div>
+  `;
+}
+
+function closeDetail() {
+  document.getElementById('detail').classList.remove('active');
+  if (answers.length === questions.length) {
+    document.getElementById('results').classList.remove('hidden');
+  } else {
+    document.getElementById('quiz').classList.remove('hidden');
+  }
+}
 
 function showQuestion() {
   const q = questions[current];
@@ -138,10 +255,8 @@ function showResults() {
   document.getElementById('results').classList.remove('hidden');
   document.getElementById('progress').style.width = '100%';
 
-  // Simple scoring
   const scored = cars.map(car => {
     let score = 0;
-    // Budget is open for now
     if (answers[1] === 0 && car.tags.includes('sedan')) score += 2;
     if (answers[1] === 1 && car.tags.includes('coupe')) score += 2;
     if (answers[2] === 0 && car.tags.includes('awd')) score += 2;
@@ -155,10 +270,12 @@ function showResults() {
 
   const list = document.getElementById('results-list');
   list.innerHTML = '';
-  scored.forEach(car => {
+  scored.forEach((car, idx) => {
+    const realIndex = cars.findIndex(c => c.name === car.name);
     const div = document.createElement('div');
     div.className = 'result-card';
     div.innerHTML = `<h3>${car.name}</h3><p>${car.why}</p>`;
+    div.onclick = () => showDetail(realIndex);
     list.appendChild(div);
   });
 }
@@ -168,9 +285,11 @@ function restart() {
   answers = [];
   document.getElementById('quiz').classList.remove('hidden');
   document.getElementById('results').classList.add('hidden');
+  document.getElementById('detail').classList.remove('active');
   showQuestion();
 }
 
+buildMenu();
 showQuestion();
 </script>
 </body>
